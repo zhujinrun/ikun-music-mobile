@@ -33,8 +33,6 @@ const defaultSetting: LX.AppSetting = {
   'player.isS2t': false,
   'player.isShowBluetoothLyric': false,
 
-  // 'playDetail.isZoomActiveLrc': false,
-  // 'playDetail.isShowLyricProgressSetting': false,
   'playDetail.style.align': 'left',
   'playDetail.vertical.style.lrcFontSize': 210,
   'playDetail.horizontal.style.lrcFontSize': 220,
@@ -66,11 +64,14 @@ const defaultSetting: LX.AppSetting = {
   'list.isSaveScrollLocation': true,
   'list.addMusicLocationType': 'top',
 
+  'download.enable': false,
   'download.fileName': '歌名 - 歌手',
+  'download.writeLyric': false,
+  'download.writeMetadata': false,
+  'download.writePicture': false,
 
   'sync.enable': false,
 
-  // 'theme.id': 'blue_plus',
   'theme.id': 'green',
   'theme.lightId': 'green',
   'theme.darkId': 'black',

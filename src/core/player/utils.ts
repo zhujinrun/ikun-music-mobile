@@ -150,7 +150,6 @@ export const filterList = async ({
     listId,
     list,
     playedList,
-    // savePath: global.lx.setting['download.savePath'],
     playerMusicInfo,
     dislikeInfo: {
       names: state.dislikeInfo.names,

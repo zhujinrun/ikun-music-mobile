@@ -3,6 +3,7 @@ import type { I18n } from '@/lang/i18n'
 declare global {
   namespace LX {
     type AddMusicLocationType = 'top' | 'bottom'
+    type DownloadFileNameFormat = '歌名 - 歌手' | '歌手 - 歌名' | '歌名'
 
     interface AppSetting {
       version: string
@@ -192,16 +193,6 @@ declare global {
       'player.isShowBluetoothLyric': boolean
 
       /**
-       * 播放详情页-是否缩放当前播放的歌词行
-       */
-      // 'playDetail.isZoomActiveLrc': boolean
-
-      /**
-       * 播放详情页-是否允许通过歌词调整播放进度
-       */
-      // 'playDetail.isShowLyricProgressSetting': boolean
-
-      /**
        * 播放详情页-歌词对齐方式
        */
       'playDetail.style.align': 'center' | 'left' | 'right'
@@ -337,9 +328,29 @@ declare global {
       'list.addMusicLocationType': AddMusicLocationType
 
       /**
+       * 是否启用下载
+       */
+      'download.enable': boolean
+
+      /**
        * 文件命名方式
        */
       'download.fileName': '歌名 - 歌手' | '歌手 - 歌名' | '歌名'
+
+      /**
+       * 是否写入歌词
+       */
+      'download.writeLyric': boolean
+
+      /**
+       * 是否写入封面
+       */
+      'download.writePicture': boolean
+
+      /**
+       * 是否写入元数据
+       */
+      'download.writeMetadata': boolean
 
       /**
        * 是否启用同步

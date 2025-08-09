@@ -66,14 +66,15 @@ export default forwardRef<MusicDownloadModalType, MusicDownloadModalProps>(
 
       const map = new Map()
 
-      map.set('128k', '128K 标准音质')
-      map.set('320k', '320K 高品音质')
-      map.set('flac', 'FLAC 无损音质')
-      map.set('hires', 'HR 无损音质')
-      map.set('atmos', '臻品全景声')
-      map.set('atmos_plus', '臻品全景声2.0')
-      map.set('master', '臻品母带')
+      map.set('128k', global.i18n.t('128k'))
+      map.set('320k', global.i18n.t('320k'))
+      map.set('flac', global.i18n.t('flac'))
+      map.set('hires', global.i18n.t('hires'))
+      map.set('atmos', global.i18n.t('atmos'))
+      map.set('atmos_plus', global.i18n.t('atmos_plus'))
+      map.set('master', global.i18n.t('master'))
 
+      // @ts-ignore
       const qualitys = selectedInfo.current.meta.qualitys
 
       let qualityMap: QualityMap = {}

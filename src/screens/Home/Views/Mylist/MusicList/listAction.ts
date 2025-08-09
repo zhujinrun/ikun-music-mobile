@@ -1,19 +1,27 @@
+import musicSdk from '@/utils/musicSdk'
+import RNFetchBlob from 'rn-fetch-blob'
+import playerState from '@/store/player/state'
+import settingState from '@/store/setting/state'
+
 import { removeListMusics, updateListMusicPosition, updateListMusics } from '@/core/list'
 import { playList, playNext } from '@/core/player/player'
 import { addTempPlayList } from '@/core/player/tempPlayList'
-import settingState from '@/store/setting/state'
+
 import { similar, sortInsert, toOldMusicInfo } from '@/utils'
 import { confirmDialog, openUrl, shareMusic, toast } from '@/utils/tools'
 import { addDislikeInfo, hasDislike } from '@/core/dislikeList'
-import playerState from '@/store/player/state'
-import type { SelectInfo } from './ListMenu'
+
+import { type SelectInfo } from './ListMenu'
 import { type Metadata } from '@/components/MetadataEditModal'
-import musicSdk from '@/utils/musicSdk'
+
+import { getFileExtension, getFileExtensionFromUrl } from './download/utils'
+import { mergeLyrics } from './download/lrcTool'
+
 import { getListMusicSync } from '@/utils/listManage'
 import { requestStoragePermission } from '@/utils/tools'
-import { getMusicUrl } from '@/core/music/online'
-import RNFetchBlob from 'rn-fetch-blob'
-
+import { getMusicUrl, getLyricInfo, getPicUrl } from '@/core/music/online'
+import { writeMetadata, writePic, writeLyric } from '@/utils/localMediaMetadata'
+import { downloadFile } from '@/utils/fs'
 export const handlePlay = (listId: SelectInfo['listId'], index: SelectInfo['index']) => {
   void playList(listId, index)
 }
@@ -190,51 +198,95 @@ export const handleToggleSource = (
   return newInfo as LX.Music.MusicInfo
 }
 
-export function getFileExtension(url: string) {
-  const match = url.match(/\.([0-9a-z]+)(?=[?#]|$)/i)
-  return match ? match[1] : 'mp3'
-}
-
-export const handleDownload = async (musicInfo: any, quality: LX.Quality) => {
+export const handleDownload = async (musicInfo: LX.Music.MusicInfo, quality: LX.Quality) => {
   try {
     await requestStoragePermission()
     try {
-      getMusicUrl({
+      const url = await getMusicUrl({
+        // @ts-ignore
         musicInfo,
         quality,
         isRefresh: true,
-        allowToggleSource: true,
       })
-        .then((url) => {
-          const extension = getFileExtension(url)
-          const fileName = `${musicInfo.name} - ${musicInfo.singer} - ${quality}`
-          const downloadDir = RNFetchBlob.fs.dirs.MusicDir + '/IKUN Music'
-          const path = `${downloadDir}/${fileName}.${extension}`
-          RNFetchBlob.config({
-            fileCache: true,
-            addAndroidDownloads: {
-              useDownloadManager: true,
-              notification: true,
-              path: path,
-              title: `${musicInfo.name} - ${musicInfo.singer}`,
-              description: '正在下载文件...',
+      const extension = getFileExtension(quality)
+      const fileName = settingState.setting['download.fileName']
+        .replace('歌名', musicInfo.name)
+        .replace('歌手', musicInfo.singer)
+      const downloadDir = RNFetchBlob.fs.dirs.MusicDir + '/IKUN Music'
+      const path = `${downloadDir}/${fileName}.${extension}`
+
+      const downloader = RNFetchBlob.config({
+        fileCache: true,
+        addAndroidDownloads: {
+          useDownloadManager: true,
+          notification: true,
+          path: path,
+          title: `${musicInfo.name} - ${musicInfo.singer}`,
+          description: '正在下载文件...',
+        },
+      })
+      const data = await downloader.fetch('GET', url)
+      const filePath = data.path()
+
+      toast(`${fileName} 下载成功! 正在写入元数据`, 'short')
+
+      if (settingState.setting['download.writeMetadata']) {
+        try {
+          await writeMetadata(
+            filePath,
+            {
+              name: musicInfo.name,
+              singer: musicInfo.singer,
+              albumName: musicInfo.meta.albumName,
             },
+            true
+          )
+        } catch (err) {
+          console.log(err)
+          toast(`${fileName} 写入元数据失败!`, 'short')
+        }
+      }
+
+      if (settingState.setting['download.writeLyric']) {
+        try {
+          const lyrics = await getLyricInfo({
+            // @ts-ignore
+            musicInfo: musicInfo,
+            isRefresh: true,
           })
-            .fetch('GET', url)
-            .then((res) => {
-              toast(`${fileName} 下载成功! 请使用音乐标签写入Metadata`, 'long')
-            })
-            .catch((error) => {
-              toast(`文件下载失败：${error}`)
-            })
-        })
-        .catch((e) => {
-          toast(`获取播放链接失败：${e}`)
-        })
-    } catch (e_1) {
-      toast(`文件下载失败：${e_1}`)
+          const lyric = mergeLyrics(lyrics.lyric, lyrics.tlyric, lyrics.rlyric)
+          // console.log(lyric)
+          await writeLyric(filePath, lyric)
+        } catch (err) {
+          console.log(err)
+          toast(`${fileName} 写入歌词失败!`, 'short')
+        }
+      }
+
+      if (settingState.setting['download.writePicture']) {
+        try {
+          const picUrl = await getPicUrl({
+            // @ts-ignore
+            musicInfo: musicInfo,
+          })
+          // console.log(picUrl)
+          const extension = getFileExtensionFromUrl(picUrl)
+          const picPath = `${downloadDir}/temp.${extension}`
+          downloadFile(picUrl, picPath)
+          await writePic(filePath, picPath)
+          RNFetchBlob.fs.unlink(picPath)
+        } catch (err) {
+          console.log(err)
+          toast(`${fileName} 写入封面失败!`, 'short')
+        }
+      }
+      toast(`路径: ${filePath}`, 'long')
+    } catch (e) {
+      console.log(e)
+      toast(`文件下载失败：${e}`)
     }
-  } catch (e_2) {
-    return await Promise.reject(e_2 ?? '权限获取失败')
+  } catch (e) {
+    console.log(e)
+    return await Promise.reject(e ?? '权限获取失败')
   }
 }
