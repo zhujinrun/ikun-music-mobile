@@ -1,7 +1,3 @@
-// if (targetSong.key) { // 如果是已下载的歌曲
-//   const filePath = path.join(appSetting['download.savePath'], targetSong.metadata.fileName)
-//   // console.log(filePath)
-
 import {
   getMusicUrl as getOnlineMusicUrl,
   getPicUrl as getOnlinePicUrl,

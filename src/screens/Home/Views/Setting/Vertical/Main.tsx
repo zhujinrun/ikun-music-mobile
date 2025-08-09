@@ -7,6 +7,7 @@ import LyricDesktop from '../settings/LyricDesktop'
 import Search from '../settings/Search'
 import List from '../settings/List'
 import Sync from '../settings/Sync'
+import Download from '../settings/Download'
 import Backup from '../settings/Backup'
 import Other from '../settings/Other'
 import Version from '../settings/Version'
@@ -37,6 +38,8 @@ const ListItem = memo(
         return <Search />
       case 'list':
         return <List />
+      case 'download':
+        return <Download />
       case 'sync':
         return <Sync />
       case 'backup':

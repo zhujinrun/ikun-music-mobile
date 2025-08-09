@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react'
 
 import listState from '@/store/list/state'
+import settingState from '@/store/setting/state'
 import ListMenu, { type ListMenuType, type Position, type SelectInfo } from './ListMenu'
 import {
   handleDislikeMusic,
@@ -42,7 +43,10 @@ export default () => {
   const listMusicAddRef = useRef<ListMusicAddType>(null)
   const listMusicMultiAddRef = useRef<ListAddMultiType>(null)
   const musicPositionModalRef = useRef<MusicPositionModalType>(null)
-  const musicDownloadModalRef = useRef<MusicDownloadModalType>(null)
+  let musicDownloadModalRef = null
+  if (settingState.setting['download.enable']) {
+    musicDownloadModalRef = useRef<MusicDownloadModalType>(null)
+  }
   const metadataEditTypeRef = useRef<MetadataEditType>(null)
   const listMenuRef = useRef<ListMenuType>(null)
   const musicToggleModalRef = useRef<MusicToggleModalType>(null)
@@ -202,7 +206,9 @@ export default () => {
           )
         }}
       />
-      <MusicDownloadModal ref={musicDownloadModalRef} onDownloadInfo={(info) => {}} />
+      {musicDownloadModalRef && (
+        <MusicDownloadModal ref={musicDownloadModalRef} onDownloadInfo={(info) => {}} />
+      )}
       <ListMenu
         ref={listMenuRef}
         onPlay={(info) => {
@@ -222,7 +228,7 @@ export default () => {
         onCopyName={(info) => {
           handleShare(info.musicInfo)
         }}
-        onDownload={(info) => musicDownloadModalRef.current?.show(info.musicInfo)}
+        onDownload={(info) => musicDownloadModalRef?.current?.show(info.musicInfo)}
         onMusicSourceDetail={(info) => {
           void handleShowMusicSourceDetail(info.musicInfo)
         }}
