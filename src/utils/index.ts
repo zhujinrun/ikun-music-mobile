@@ -58,6 +58,36 @@ export const toNewMusicInfo = (oldMusicInfo: any): LX.Music.MusicInfo => {
       })
     }
 
+    if (meta._qualitys.flac24bit && !meta._qualitys.hires) {
+      meta._qualitys.hires = meta._qualitys.flac24bit
+      delete meta._qualitys.flac24bit
+
+      meta.qualitys = (meta.qualitys as any[]).map((quality) => {
+        if (quality.type == 'flac24bit') quality.type = 'hires'
+        return quality
+      })
+    }
+
+    if (meta._qualitys.effect && !meta._qualitys.atmos) {
+      meta._qualitys.atmos = meta._qualitys.effect
+      delete meta._qualitys.effect
+
+      meta.qualitys = (meta.qualitys as any[]).map((quality) => {
+        if (quality.type == 'effect') quality.type = 'atmos'
+        return quality
+      })
+    }
+
+    if (meta._qualitys.effect_plus && !meta._qualitys.atmos_plus) {
+      meta._qualitys.atmos_plus = meta._qualitys.effect_plus
+      delete meta._qualitys.effect_plus
+
+      meta.qualitys = (meta.qualitys as any[]).map((quality) => {
+        if (quality.type == 'effect_plus') quality.type = 'atmos_plus'
+        return quality
+      })
+    }
+
     switch (oldMusicInfo.source) {
       case 'kg':
         meta.hash = oldMusicInfo.hash
@@ -124,7 +154,7 @@ export const toOldMusicInfo = (minfo: LX.Music.MusicInfo): any => {
 }
 
 /**
- * 修复2.0.0-dev.8之前的新列表数据音质
+ * 修复2.0.0-dev.8之前以及LX Music Mod的新列表数据音质
  * @param musicInfo
  */
 export const fixNewMusicInfoQuality = (musicInfo: LX.Music.MusicInfo) => {
@@ -140,6 +170,48 @@ export const fixNewMusicInfoQuality = (musicInfo: LX.Music.MusicInfo) => {
     musicInfo.meta.qualitys = musicInfo.meta.qualitys.map((quality) => {
       // @ts-expect-error
       if (quality.type == 'flac32bit') quality.type = 'hires'
+      return quality
+    })
+  }
+
+  // @ts-expect-error
+  if (musicInfo.meta._qualitys.flac24bit && !musicInfo.meta._qualitys.hires) {
+    // @ts-expect-error
+    musicInfo.meta._qualitys.hires = musicInfo.meta._qualitys.flac24bit
+    // @ts-expect-error
+    delete musicInfo.meta._qualitys.flac24bit
+
+    musicInfo.meta.qualitys = musicInfo.meta.qualitys.map((quality) => {
+      // @ts-expect-error
+      if (quality.type == 'flac24bit') quality.type = 'hires'
+      return quality
+    })
+  }
+
+  // @ts-expect-error
+  if (musicInfo.meta._qualitys.effect && !musicInfo.meta._qualitys.atmos) {
+    // @ts-expect-error
+    musicInfo.meta._qualitys.atmos = musicInfo.meta._qualitys.effect
+    // @ts-expect-error
+    delete musicInfo.meta._qualitys.effect
+
+    musicInfo.meta.qualitys = musicInfo.meta.qualitys.map((quality) => {
+      // @ts-expect-error
+      if (quality.type == 'effect') quality.type = 'atmos'
+      return quality
+    })
+  }
+
+  // @ts-expect-error
+  if (musicInfo.meta._qualitys.effect_plus && !musicInfo.meta._qualitys.atmos_plus) {
+    // @ts-expect-error
+    musicInfo.meta._qualitys.atmos_plus = musicInfo.meta._qualitys.effect_plus
+    // @ts-expect-error
+    delete musicInfo.meta._qualitys.effect_plus
+
+    musicInfo.meta.qualitys = musicInfo.meta.qualitys.map((quality) => {
+      // @ts-expect-error
+      if (quality.type == 'effect_plus') quality.type = 'atmos_plus'
       return quality
     })
   }

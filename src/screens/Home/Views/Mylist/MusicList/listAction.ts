@@ -241,6 +241,7 @@ export const handleDownload = async (musicInfo: LX.Music.MusicInfo, quality: LX.
             },
             true
           )
+          toast(`写入标签成功!`, 'short')
         } catch (err) {
           console.log(err)
           toast(`${fileName} 写入元数据失败!`, 'short')
@@ -257,6 +258,7 @@ export const handleDownload = async (musicInfo: LX.Music.MusicInfo, quality: LX.
           const lyric = mergeLyrics(lyrics.lyric, lyrics.tlyric, lyrics.rlyric)
           // console.log(lyric)
           await writeLyric(filePath, lyric)
+          toast(`写入歌词成功!`, 'short')
         } catch (err) {
           console.log(err)
           toast(`${fileName} 写入歌词失败!`, 'short')
@@ -274,7 +276,8 @@ export const handleDownload = async (musicInfo: LX.Music.MusicInfo, quality: LX.
           const picPath = `${downloadDir}/temp.${extension}`
           downloadFile(picUrl, picPath)
           await writePic(filePath, picPath)
-          RNFetchBlob.fs.unlink(picPath)
+          await RNFetchBlob.fs.unlink(picPath)
+          toast(`写入封面成功!`, 'short')
         } catch (err) {
           console.log(err)
           toast(`${fileName} 写入封面失败!`, 'short')
