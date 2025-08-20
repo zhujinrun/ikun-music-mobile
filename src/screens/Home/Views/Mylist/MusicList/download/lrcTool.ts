@@ -59,7 +59,11 @@ const parseLrcTimeLabel = (lrc: string) => {
   return linesSet
 }
 
-export const mergeLyrics = (lrc: string, tlrc: string | null| undefined, rlrc: string | null | undefined) => {
+export const mergeLyrics = (
+  lrc: string,
+  tlrc: string | null | undefined,
+  rlrc: string | null | undefined
+) => {
   if (!tlrc && !rlrc) return lrc
 
   const lrcTimeLabels = parseLrcTimeLabel(lrc)

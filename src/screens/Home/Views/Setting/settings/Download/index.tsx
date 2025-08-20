@@ -15,7 +15,7 @@ export default memo(() => {
   return (
     <Section title={t('setting_download')}>
       <IsEnable />
-      <SubTitle title={t('setting_download_options_title')} >
+      <SubTitle title={t('setting_download_options_title')}>
         <IsWriteTags />
         <IsWriteLyrics />
         <IsWriteCover />
