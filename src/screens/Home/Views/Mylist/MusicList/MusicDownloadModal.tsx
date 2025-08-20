@@ -102,7 +102,7 @@ export default forwardRef<MusicDownloadModalType, MusicDownloadModalProps>(
         }, 300)
       })
     }
-    
+
     useImperativeHandle(ref, () => ({
       show(info) {
         selectedInfo.current = info

@@ -64,7 +64,9 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
     const menu = [
       { action: 'play', label: t('play') },
       { action: 'playLater', label: t('play_later') },
-      ...(settingState.setting['download.enable'] ? [{ action: 'download', label: t('download') }] : []),
+      ...(settingState.setting['download.enable']
+        ? [{ action: 'download', label: t('download') }]
+        : []),
       { action: 'add', label: t('add_to') },
       { action: 'move', label: t('move_to') },
       { action: 'changePosition', label: t('change_position') },

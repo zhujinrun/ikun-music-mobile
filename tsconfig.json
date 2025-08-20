@@ -2,21 +2,12 @@
   "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
     "module": "ESNext",
-    "types": [
-      "react-native",
-      "node"
-    ],
+    "types": ["react-native", "node"],
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "build",
-    "dist"
-  ]
+  "exclude": ["node_modules", "build", "dist"]
 }
