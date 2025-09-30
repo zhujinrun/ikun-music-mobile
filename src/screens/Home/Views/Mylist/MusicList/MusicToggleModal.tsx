@@ -1,22 +1,8 @@
-import {
-  useRef,
-  useImperativeHandle,
-  forwardRef,
-  useState,
-  useCallback,
-  memo,
-  useEffect,
-} from 'react'
+import { useRef, useImperativeHandle, forwardRef, useState, useCallback, memo, useEffect } from 'react'
 import Text from '@/components/common/Text'
 import { createStyle } from '@/utils/tools'
 import Dialog, { type DialogType } from '@/components/common/Dialog'
-import {
-  FlatList,
-  ScrollView,
-  TouchableOpacity,
-  View,
-  type FlatListProps as _FlatListProps,
-} from 'react-native'
+import { FlatList, ScrollView, TouchableOpacity, View, type FlatListProps as _FlatListProps } from 'react-native'
 import { scaleSizeH } from '@/utils/pixelRatio'
 import { useTheme } from '@/store/theme/hook'
 import { Icon } from '@/components/common/Icon'
@@ -28,15 +14,16 @@ import { searchMusic } from '@/utils/musicSdk'
 import { toNewMusicInfo } from '@/utils'
 import { handleShowMusicSourceDetail, handleToggleSource } from './listAction'
 import { BorderRadius, BorderWidths } from '@/theme'
+import playerState from '@/store/player/state'
+import { LIST_IDS } from '@/config/constant'
+import { addTempPlayList } from '@/core/player/tempPlayList'
+import { playNext } from '@/core/player/player'
 
 type FlatListProps = _FlatListProps<LX.Music.MusicInfoOnline>
 const ITEM_HEIGHT = scaleSizeH(56)
 
-const Tabs = <T extends LX.OnlineSource>({
-  list,
-  source,
-  onChangeSource,
-}: {
+
+const Tabs = <T extends LX.OnlineSource>({ list, source, onChangeSource }: {
   list: T[]
   source: T | ''
   onChangeSource: (source: T) => void
@@ -46,137 +33,92 @@ const Tabs = <T extends LX.OnlineSource>({
   const scrollViewRef = useRef<ScrollView>(null)
 
   return (
-    <ScrollView
-      ref={scrollViewRef}
-      style={styles.tabContainer}
-      keyboardShouldPersistTaps={'always'}
-      horizontal
-    >
-      {list_t.map((s) => (
-        <TouchableOpacity
-          style={{
-            ...styles.tabButton,
-            borderBottomColor:
-              source == s.action ? theme['c-primary-background-active'] : 'transparent',
-          }}
-          onPress={() => {
-            onChangeSource(s.action as T)
-          }}
-          key={s.action}
-        >
-          <Text
-            style={styles.tabButtonText}
-            color={source == s.action ? theme['c-primary-font-active'] : theme['c-font']}
+    <ScrollView ref={scrollViewRef} style={styles.tabContainer} keyboardShouldPersistTaps={'always'} horizontal>
+      {
+        list_t.map(s => (
+          <TouchableOpacity
+            style={{ ...styles.tabButton, borderBottomColor: source == s.action ? theme['c-primary-background-active'] : 'transparent' }}
+            onPress={() => {
+              onChangeSource(s.action as T)
+            }}
+            key={s.action}
           >
-            {s.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <Text style={styles.tabButtonText} color={source == s.action ? theme['c-primary-font-active'] : theme['c-font']}>{s.label}</Text>
+          </TouchableOpacity>
+        ))
+      }
     </ScrollView>
   )
 }
 
-const Empty = ({
-  loading,
-  error,
-  onReload,
-}: {
-  loading: boolean
-  error: boolean
-  onReload: () => void
-}) => {
+const Empty = ({ loading, error, onReload }: { loading: boolean, error: boolean, onReload: () => void }) => {
   const theme = useTheme()
   const t = useI18n()
-  const label = loading ? t('list_loading') : error ? t('list_error') : t('no_item')
+  const label = loading
+    ? t('list_loading')
+    : error
+      ? t('list_error')
+      : t('no_item')
   return (
     <View style={styles.noitem}>
-      {error ? (
-        <Text onPress={onReload} color={theme['c-font-label']}>
-          {label}
-        </Text>
-      ) : (
-        <Text color={theme['c-font-label']}>{label}</Text>
-      )}
+      {
+        error ? (
+          <Text onPress={onReload} color={theme['c-font-label']}>{label}</Text>
+        ) : (
+          <Text color={theme['c-font-label']}>{label}</Text>
+        )
+      }
     </View>
   )
 }
 
-const ListItem = memo(
-  ({
-    info,
-    onToggleSource,
-    onOpenDetail,
-  }: {
-    info: LX.Music.MusicInfoOnline
-    onToggleSource: (info: LX.Music.MusicInfoOnline) => void
-    onOpenDetail: (info: LX.Music.MusicInfoOnline) => void
-  }) => {
-    const theme = useTheme()
+const ListItem = memo(({ info, onPlay, onOpenDetail }: {
+  info: LX.Music.MusicInfoOnline
+  onPlay: (info: LX.Music.MusicInfoOnline) => void
+  onOpenDetail: (info: LX.Music.MusicInfoOnline) => void
+}) => {
+  const theme = useTheme()
 
-    return (
-      <View
-        style={{ ...styles.listItem, height: ITEM_HEIGHT }}
-        onStartShouldSetResponder={() => true}
-      >
-        {/* <View style={styles.listItemLabel}>
+  return (
+    <View style={{ ...styles.listItem, height: ITEM_HEIGHT }} onStartShouldSetResponder={() => true}>
+      {/* <View style={styles.listItemLabel}>
         <Text style={styles.sn} size={13} color={theme['c-300']}>{info.index + 1}</Text>
       </View> */}
-        <View style={styles.listItemInfo}>
-          <Text color={theme['c-font']} size={14} numberOfLines={1}>
-            {info.name}
+      <View style={styles.listItemInfo}>
+        <Text color={theme['c-font']} size={14} numberOfLines={1}>{info.name}</Text>
+        <View style={styles.listItemAlbum}>
+          <Text color={theme['c-font']} size={12} numberOfLines={1}>
+            {info.singer}
+            {
+              info.meta.albumName ? (
+                <Text color={theme['c-font-label']} size={12} numberOfLines={1}> ({info.meta.albumName})</Text>
+              ) : null
+            }
           </Text>
-          <View style={styles.listItemAlbum}>
-            <Text color={theme['c-font']} size={12} numberOfLines={1}>
-              {info.singer}
-              {info.meta.albumName ? (
-                <Text color={theme['c-font-label']} size={12} numberOfLines={1}>
-                  {' '}
-                  ({info.meta.albumName})
-                </Text>
-              ) : null}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.listItemLabel}>
-          {/* <Text style={styles.listItemLabelText} size={13} color={theme['c-300']}>{ info.source }</Text> */}
-          <Text style={styles.listItemLabelText} size={13} color={theme['c-300']}>
-            {info.interval}
-          </Text>
-        </View>
-        <View style={styles.listItemBtns}>
-          <Button
-            style={styles.listItemBtn}
-            onPress={() => {
-              onOpenDetail(info)
-            }}
-          >
-            <Icon name="share" style={{ color: theme['c-button-font'] }} size={18} />
-          </Button>
-          <Button
-            style={styles.listItemBtn}
-            onPress={() => {
-              onToggleSource(info)
-            }}
-          >
-            <Icon name="play" style={{ color: theme['c-button-font'] }} size={18} />
-          </Button>
         </View>
       </View>
-    )
-  },
-  (prevProps, nextProps) => {
-    return prevProps.info === nextProps.info
-  }
-)
+      <View style={styles.listItemLabel}>
+        {/* <Text style={styles.listItemLabelText} size={13} color={theme['c-300']}>{ info.source }</Text> */}
+        <Text style={styles.listItemLabelText} size={13} color={theme['c-300']}>{info.interval}</Text>
+      </View>
+      <View style={styles.listItemBtns}>
+        <Button style={styles.listItemBtn} onPress={() => { onOpenDetail(info) }}>
+          <Icon name="share" style={{ color: theme['c-button-font'] }} size={18} />
+        </Button>
+        <Button style={styles.listItemBtn} onPress={() => { onPlay(info) }}>
+          <Icon name="play" style={{ color: theme['c-button-font'] }} size={18} />
+        </Button>
+      </View>
+    </View>
+  )
+}, (prevProps, nextProps) => {
+  return prevProps.info === nextProps.info
+})
 
-const List = ({
-  source,
-  lists,
-  onToggleSource,
-}: {
+const List = ({ source, lists, onPlay }: {
   source: LX.OnlineSource | ''
   lists: Partial<Record<LX.OnlineSource, LX.Music.MusicInfoOnline[]>>
-  onToggleSource: (info?: LX.Music.MusicInfoOnline | null) => void
+  onPlay: (info: LX.Music.MusicInfoOnline) => void
 }) => {
   const [list, setList] = useState<LX.Music.MusicInfoOnline[]>([])
   const isFirstRef = useRef(true)
@@ -195,13 +137,10 @@ const List = ({
     void handleShowMusicSourceDetail(musicInfo)
   }, [])
 
-  const renderItem = useCallback(
-    ({ item }: { item: LX.Music.MusicInfoOnline; index: number }) => {
-      return <ListItem info={item} onToggleSource={onToggleSource} onOpenDetail={openDetail} />
-    },
-    [onToggleSource, openDetail]
-  )
-  const getkey = useCallback<NonNullable<FlatListProps['keyExtractor']>>((item) => item.id, [])
+  const renderItem = useCallback(({ item }: { item: LX.Music.MusicInfoOnline, index: number }) => {
+    return <ListItem info={item} onPlay={onPlay} onOpenDetail={openDetail} />
+  }, [onPlay, openDetail])
+  const getkey = useCallback<NonNullable<FlatListProps['keyExtractor']>>(item => item.id, [])
   const getItemLayout = useCallback<NonNullable<FlatListProps['getItemLayout']>>((data, index) => {
     return { length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index }
   }, [])
@@ -221,94 +160,68 @@ const List = ({
   )
 }
 
-const SourceDetail = ({
-  info,
-  onToggleSource,
-}: {
-  info: LX.Music.MusicInfo
-  onToggleSource: (info?: LX.Music.MusicInfoOnline | null) => void
-}) => {
+const SourceDetail = ({ info, onConfirm, toggleSource }: { info: LX.Music.MusicInfo, onConfirm: (info: LX.Music.MusicInfoOnline) => void, toggleSource: LX.Music.MusicInfoOnline | null }) => {
   const theme = useTheme()
   const isHorizontalMode = useHorizontalMode()
+  const t = useI18n()
 
-  const cleanToggle = useCallback(() => {
-    onToggleSource(null)
-  }, [onToggleSource])
-
-  const toggleSource = info.meta.toggleMusicInfo
   return isHorizontalMode ? (
     <View style={styles.detailContainer}>
       <View style={styles.detailContainerX}>
-        <View style={styles.detailInfo}>
-          <View style={styles.detailInfoName}>
-            <Text
-              style={styles.detailInfoNameText}
-              color={theme['c-font']}
-              size={13}
-              numberOfLines={2}
-            >
-              {info.name}
-            </Text>
-            <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>
-              {info.source}
-            </Text>
-            <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>
-              {info.interval}
-            </Text>
-          </View>
-          <View style={styles.listItemAlbum}>
-            <Text color={theme['c-font']} size={12} numberOfLines={1}>
-              {info.singer}
-              {info.meta.albumName ? (
-                <Text color={theme['c-font-label']} size={12} numberOfLines={1}>
-                  {' '}
-                  ({info.meta.albumName})
-                </Text>
-              ) : null}
-            </Text>
-          </View>
+      <View style={styles.detailInfo}>
+        <View style={styles.detailInfoName}>
+          <Text style={styles.detailInfoNameText} color={theme['c-font']} size={13} numberOfLines={2}>
+            {info.name}
+          </Text>
+          <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>{info.source}</Text>
+          <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>{info.interval}</Text>
         </View>
-        {toggleSource ? (
+        <View style={styles.listItemAlbum}>
+          <Text color={theme['c-font']} size={12} numberOfLines={1}>
+            {info.singer}
+            {
+              info.meta.albumName ? (
+                <Text color={theme['c-font-label']} size={12} numberOfLines={1}> ({info.meta.albumName})</Text>
+              ) : null
+            }
+          </Text>
+        </View>
+      </View>
+      {
+        toggleSource ? (
           <>
             <Text>→</Text>
             <View style={styles.detailInfo}>
               <View style={styles.detailInfoName}>
-                <Text
-                  style={styles.detailInfoNameText}
-                  color={theme['c-font']}
-                  size={13}
-                  numberOfLines={2}
-                >
+                <Text style={styles.detailInfoNameText} color={theme['c-font']} size={13} numberOfLines={2}>
                   {toggleSource.name}
                 </Text>
-                <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>
-                  {toggleSource.source}
-                </Text>
-                <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>
-                  {toggleSource.interval}
-                </Text>
+                <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>{toggleSource.source}</Text>
+                <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>{toggleSource.interval}</Text>
               </View>
               <View style={styles.listItemAlbum}>
                 <Text color={theme['c-font']} size={12} numberOfLines={1}>
                   {toggleSource.singer}
-                  {toggleSource.meta.albumName ? (
-                    <Text color={theme['c-font-label']} size={12} numberOfLines={1}>
-                      {' '}
-                      ({toggleSource.meta.albumName})
-                    </Text>
-                  ) : null}
+                  {
+                    toggleSource.meta.albumName ? (
+                      <Text color={theme['c-font-label']} size={12} numberOfLines={1}> ({toggleSource.meta.albumName})</Text>
+                    ) : null
+                  }
                 </Text>
               </View>
             </View>
           </>
-        ) : null}
+        ) : null
+      }
       </View>
       <Button
-        onPress={cleanToggle}
+        onPress={() => {
+          onConfirm(toggleSource!)
+        }}
         style={{ ...styles.button, backgroundColor: theme['c-button-background'] }}
         disabled={!toggleSource}
       >
-        <Text color={theme['c-button-font']}>取消换源</Text>
+        <Text color={theme['c-button-font']}>{t('music_toggle__confirm')}</Text>
       </Button>
     </View>
   ) : (
@@ -316,78 +229,63 @@ const SourceDetail = ({
       <View style={styles.detailContainerY}>
         <View style={styles.detailInfo}>
           <View style={styles.detailInfoName}>
-            <Text
-              style={styles.detailInfoNameText}
-              color={theme['c-font']}
-              size={14}
-              numberOfLines={2}
-            >
+            <Text style={styles.detailInfoNameText} color={theme['c-font']} size={14} numberOfLines={2}>
               {info.name}
             </Text>
-            <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>
-              {info.source}
-            </Text>
-            <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>
-              {info.interval}
-            </Text>
+            <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>{info.source}</Text>
+            <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>{info.interval}</Text>
           </View>
           <View style={styles.listItemAlbum}>
             <Text color={theme['c-font']} size={12} numberOfLines={1}>
               {info.singer}
-              {info.meta.albumName ? (
-                <Text color={theme['c-font-label']} size={12} numberOfLines={1}>
-                  {' '}
-                  ({info.meta.albumName})
-                </Text>
-              ) : null}
+              {
+                info.meta.albumName ? (
+                  <Text color={theme['c-font-label']} size={12} numberOfLines={1}> ({info.meta.albumName})</Text>
+                ) : null
+              }
             </Text>
           </View>
         </View>
-        {toggleSource ? (
-          <>
-            <Text>↓</Text>
-            <View style={styles.detailInfo}>
-              <View style={styles.detailInfoName}>
-                <Text
-                  style={styles.detailInfoNameText}
-                  color={theme['c-font']}
-                  size={14}
-                  numberOfLines={2}
-                >
-                  {toggleSource.name}
-                </Text>
-                <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>
-                  {toggleSource.source}
-                </Text>
-                <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>
-                  {toggleSource.interval}
-                </Text>
+        {
+          toggleSource ? (
+            <>
+              <Text>↓</Text>
+              <View style={styles.detailInfo}>
+                <View style={styles.detailInfoName}>
+                  <Text style={styles.detailInfoNameText} color={theme['c-font']} size={14} numberOfLines={2}>
+                    {toggleSource.name}
+                  </Text>
+                  <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>{toggleSource.source}</Text>
+                  <Text style={styles.detailInfoLabelText} size={12} color={theme['c-primary']}>{toggleSource.interval}</Text>
+                </View>
+                <View style={styles.listItemAlbum}>
+                  <Text color={theme['c-font']} size={12} numberOfLines={1}>
+                    {toggleSource.singer}
+                    {
+                      toggleSource.meta.albumName ? (
+                        <Text color={theme['c-font-label']} size={12} numberOfLines={1}> ({toggleSource.meta.albumName})</Text>
+                      ) : null
+                    }
+                  </Text>
+                </View>
               </View>
-              <View style={styles.listItemAlbum}>
-                <Text color={theme['c-font']} size={12} numberOfLines={1}>
-                  {toggleSource.singer}
-                  {toggleSource.meta.albumName ? (
-                    <Text color={theme['c-font-label']} size={12} numberOfLines={1}>
-                      {' '}
-                      ({toggleSource.meta.albumName})
-                    </Text>
-                  ) : null}
-                </Text>
-              </View>
-            </View>
-          </>
-        ) : null}
+            </>
+          ) : null
+        }
       </View>
       <Button
-        onPress={cleanToggle}
+        onPress={() => {
+          onConfirm(toggleSource!)
+        }}
         style={{ ...styles.button, backgroundColor: theme['c-button-background'] }}
-        disabled={!toggleSource}
+        disabled={!toggleSource || toggleSource.id == info.id}
       >
-        <Text color={theme['c-button-font']}>取消换源</Text>
+        <Text color={theme['c-button-font']}>{t('music_toggle__confirm')}</Text>
       </Button>
     </View>
   )
 }
+
 
 interface ModalType {
   show: (info: SelectInfo) => void
@@ -395,7 +293,7 @@ interface ModalType {
 const initInfo = {}
 
 const Modal = forwardRef<ModalType, {}>((props, ref) => {
-  const [info, setInfo] = useState<SelectInfo>(initInfo as SelectInfo)
+  const infoRef = useRef<SelectInfo>(initInfo as SelectInfo)
   const [sourceInfo, setSourceInfo] = useState<{
     sourceInfo: LX.OnlineSource[]
     lists: Partial<Record<LX.OnlineSource, LX.Music.MusicInfoOnline[]>>
@@ -405,36 +303,39 @@ const Modal = forwardRef<ModalType, {}>((props, ref) => {
   const [source, setSource] = useState<LX.OnlineSource | ''>('')
   const dialogRef = useRef<DialogType>(null)
   const isUnmountedRef = useUnmounted()
+  const [toggleSource, setToggleSource] = useState<LX.Music.MusicInfoOnline | null>(null)
 
-  const loadData = useCallback(
-    (selectInfo: SelectInfo = info) => {
-      setSourceInfo({ sourceInfo: [], lists: {}, loading: true, error: false })
-      searchMusic({
-        name: selectInfo.musicInfo.name,
-        singer: selectInfo.musicInfo.singer,
-        source: '',
-      })
-        .then((result: Array<{ source: LX.OnlineSource; list: LX.Music.MusicInfoOnline[] }>) => {
-          if (isUnmountedRef.current) return
-          const tags: LX.OnlineSource[] = []
-          const lists: Partial<Record<LX.OnlineSource, LX.Music.MusicInfoOnline[]>> = {}
-          for (const s of result) {
-            tags.push(s.source)
-            lists[s.source] = s.list.map((s) => toNewMusicInfo(s) as LX.Music.MusicInfoOnline)
-          }
-          setSourceInfo({ sourceInfo: tags, lists, loading: false, error: false })
-          if (tags.length) setSource(tags[0])
-        })
-        .catch(() => {
-          if (isUnmountedRef.current) return
-          setSourceInfo({ ...sourceInfo, error: true })
-        })
-    },
-    [info, isUnmountedRef, sourceInfo]
-  )
+  const handlePlay = useCallback((musicInfo: LX.Music.MusicInfoOnline) => {
+    setToggleSource(musicInfo)
+    const isPlaying = !!playerState.playMusicInfo.musicInfo
+    addTempPlayList([{ listId: LIST_IDS.PLAY_LATER, musicInfo, isTop: true }])
+    if (isPlaying) void playNext()
+  }, [])
+
+  const loadData = useCallback((selectInfo: SelectInfo = infoRef.current) => {
+    setSourceInfo({ sourceInfo: [], lists: {}, loading: true, error: false })
+    searchMusic({
+      name: selectInfo.musicInfo.name,
+      singer: selectInfo.musicInfo.singer,
+      source: '',
+    }).then((result: Array<{ source: LX.OnlineSource, list: LX.Music.MusicInfoOnline[] }>) => {
+      if (isUnmountedRef.current) return
+      const tags: LX.OnlineSource[] = []
+      const lists: Partial<Record<LX.OnlineSource, LX.Music.MusicInfoOnline[]>> = {}
+      for (const s of result) {
+        tags.push(s.source)
+        lists[s.source] = s.list.map(s => toNewMusicInfo(s) as LX.Music.MusicInfoOnline)
+      }
+      setSourceInfo({ sourceInfo: tags, lists, loading: false, error: false })
+      if (tags.length) setSource(tags[0])
+    }).catch(() => {
+      if (isUnmountedRef.current) return
+      setSourceInfo({ ...sourceInfo, error: true })
+    })
+  }, [isUnmountedRef, sourceInfo])
   useImperativeHandle(ref, () => ({
     show(info) {
-      setInfo(info)
+      infoRef.current = info
       setSource('')
       loadData(info)
       requestAnimationFrame(() => {
@@ -443,28 +344,31 @@ const Modal = forwardRef<ModalType, {}>((props, ref) => {
     },
   }))
 
-  const toggleSource = useCallback(
-    (musicInfo?: LX.Music.MusicInfoOnline | null) => {
-      const newInfo = handleToggleSource(info.listId, info.musicInfo, musicInfo)
-      if (newInfo) {
-        setInfo({ ...info, musicInfo: newInfo })
-      } else dialogRef.current?.setVisible(false)
-    },
-    [info]
-  )
+  const confirmToggleSource = useCallback(async(musicInfo: LX.Music.MusicInfoOnline) => {
+    const isClose = await handleToggleSource(infoRef.current.listId, infoRef.current.musicInfo, musicInfo)
+    if (isClose) dialogRef.current?.setVisible(false)
+  }, [])
 
   return (
     <Dialog ref={dialogRef}>
       <View style={styles.container}>
-        {sourceInfo.sourceInfo.length ? (
-          <>
-            <Tabs list={sourceInfo.sourceInfo} source={source} onChangeSource={setSource} />
-            <List source={source} lists={sourceInfo.lists} onToggleSource={toggleSource} />
-          </>
-        ) : (
-          <Empty loading={sourceInfo.loading} error={sourceInfo.error} onReload={loadData} />
-        )}
-        <SourceDetail info={info.musicInfo} onToggleSource={toggleSource} />
+        {
+          sourceInfo.sourceInfo.length
+            ? (<>
+                <Tabs
+                  list={sourceInfo.sourceInfo}
+                  source={source}
+                  onChangeSource={setSource}
+                />
+                <List
+                  source={source}
+                  lists={sourceInfo.lists}
+                  onPlay={handlePlay}
+                />
+              </>)
+            : <Empty loading={sourceInfo.loading} error={sourceInfo.error} onReload={loadData} />
+        }
+        <SourceDetail info={infoRef.current.musicInfo} onConfirm={confirmToggleSource} toggleSource={toggleSource} />
       </View>
     </Dialog>
   )
@@ -494,8 +398,13 @@ export default forwardRef<MusicToggleModalType, {}>((props, ref) => {
     },
   }))
 
-  return visible ? <Modal ref={musicAddModalRef} /> : null
+  return (
+    visible
+      ? <Modal ref={musicAddModalRef} />
+      : null
+  )
 })
+
 
 const styles = createStyle({
   container: {
@@ -626,3 +535,4 @@ const styles = createStyle({
     alignItems: 'center',
   },
 })
+

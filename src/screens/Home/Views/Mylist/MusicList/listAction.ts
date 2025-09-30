@@ -3,8 +3,13 @@ import RNFetchBlob from 'rn-fetch-blob'
 import playerState from '@/store/player/state'
 import settingState from '@/store/setting/state'
 
-import { removeListMusics, updateListMusicPosition, updateListMusics } from '@/core/list'
-import { playList, playNext } from '@/core/player/player'
+import {
+  addListMusics,
+  removeListMusics,
+  updateListMusicPosition,
+  updateListMusics,
+} from '@/core/list'
+import { playList, playListById, playNext } from '@/core/player/player'
 import { addTempPlayList } from '@/core/player/tempPlayList'
 
 import { similar, sortInsert, toOldMusicInfo } from '@/utils'
@@ -22,6 +27,7 @@ import { requestStoragePermission } from '@/utils/tools'
 import { getMusicUrl, getLyricInfo, getPicUrl } from '@/core/music/online'
 import { writeMetadata, writePic, writeLyric } from '@/utils/localMediaMetadata'
 import { downloadFile } from '@/utils/fs'
+
 export const handlePlay = (listId: SelectInfo['listId'], index: SelectInfo['index']) => {
   void playList(listId, index)
 }
@@ -77,6 +83,7 @@ export const handleUpdateMusicPosition = (
     )
     onCancelSelect()
   } else {
+    // console.log(listId, position, [musicInfo.id])
     void updateListMusicPosition(listId, position, [musicInfo.id])
   }
 }
@@ -166,36 +173,44 @@ export const handleDislikeMusic = async (musicInfo: SelectInfo['musicInfo']) => 
   }
 }
 
-export const handleToggleSource = (
+export const handleToggleSource = async (
   listId: string,
   musicInfo: LX.Music.MusicInfo,
-  toggleMusicInfo?: LX.Music.MusicInfoOnline | null
+  toggleMusicInfo: LX.Music.MusicInfoOnline
 ) => {
   const list = getListMusicSync(listId)
-  const idx = list.findIndex((m) => m.id == musicInfo.id)
-  if (idx < 0) return null
-  musicInfo.meta.toggleMusicInfo = toggleMusicInfo
-  const newInfo = {
-    ...musicInfo,
-    meta: {
-      ...musicInfo.meta,
-      toggleMusicInfo,
-    },
+  const oldId = musicInfo.id
+  let oldIdx = list.findIndex((m) => m.id == oldId)
+  if (oldIdx < 0) {
+    void addListMusics(listId, [toggleMusicInfo], settingState.setting['list.addMusicLocationType'])
+    return true
   }
-  void updateListMusics([
-    {
-      id: listId,
-      musicInfo: newInfo as LX.Music.MusicInfo,
-    },
-  ])
-  if (
-    !!toggleMusicInfo ||
-    (playerState.playMusicInfo.listId == listId &&
-      playerState.playMusicInfo.musicInfo?.id == musicInfo.id)
-  ) {
-    void playList(listId, idx)
+  const id = toggleMusicInfo.id
+  const index = list.findIndex((m) => m.id == id)
+  const removeIds = [oldId]
+  if (index > -1) {
+    if (
+      !(await confirmDialog({
+        message: global.i18n.t('music_toggle__duplicate_tip'),
+        cancelButtonText: global.i18n.t('dialog_cancel'),
+        confirmButtonText: global.i18n.t('dialog_confirm'),
+      }))
+    )
+      return false
+    removeIds.push(id)
   }
-  return newInfo as LX.Music.MusicInfo
+  void removeListMusics(listId, removeIds).then(async () => {
+    await addListMusics(listId, [toggleMusicInfo], 'bottom')
+    if (index != -1 && index < oldIdx) oldIdx--
+    await updateListMusicPosition(listId, oldIdx, [id])
+    if (
+      playerState.playMusicInfo.listId == listId &&
+      playerState.playMusicInfo.musicInfo?.id == oldId
+    ) {
+      void playListById(listId, toggleMusicInfo.id)
+    }
+  })
+  return true
 }
 
 export const handleDownload = async (musicInfo: LX.Music.MusicInfo, quality: LX.Quality) => {
