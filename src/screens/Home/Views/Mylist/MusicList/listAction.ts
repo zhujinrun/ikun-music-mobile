@@ -227,7 +227,7 @@ export const handleDownload = async (musicInfo: LX.Music.MusicInfo, quality: LX.
       const fileName = settingState.setting['download.fileName']
         .replace('歌名', musicInfo.name)
         .replace('歌手', musicInfo.singer)
-      const downloadDir = RNFetchBlob.fs.dirs.MusicDir + '/IKUN Music'
+      const downloadDir = RNFetchBlob.fs.dirs.MusicDir + '/IKUN Music' || '/IKUN Music'
       const path = `${downloadDir}/${fileName}.${extension}`
 
       const downloader = RNFetchBlob.config({
