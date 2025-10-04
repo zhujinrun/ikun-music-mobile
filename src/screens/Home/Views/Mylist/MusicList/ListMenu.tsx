@@ -129,7 +129,7 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
         props.onChangePosition(selectInfo)
         break
       case 'toggleSource':
-        props.onToggleSource(selectInfo)
+        props.onToggleSource()
         break
       case 'musicSourceDetail':
         props.onMusicSourceDetail(selectInfo)
