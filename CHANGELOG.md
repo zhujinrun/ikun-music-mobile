@@ -6,6 +6,27 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.8.2](https://github.com/ikunshare/ikun-music-mobile/compare/v1.7.0...v1.8.2) - 2025-10-28
+
+### 新增
+
+- 新增「设置 → 基本设置 → 允许通过底栏进度条调整播放进度」设置（#778）
+   *默认为原来的启用状态，若你觉得在进入播放详情页时会误触调整进度，则可以将其关闭*
+- 新增 Any Listen 歌词标签数据读取与播放
+- 编辑本地歌曲的标签信息时，添加 Any Listen 歌词标签数据生成
+
+### 优化
+
+- 设置-备份与恢复 导入列表数据时，增加二次确认提示（#809）
+
+### 修复
+
+- 修复切歌时，偶现歌词不播放的问题
+
+### 其他
+
+- 更新 Media3 到 v1.8.0
+
 ## [1.7.0](https://github.com/lyswhut/lx-music-mobile/compare/v1.6.0...v1.7.0) - 2025-01-27
 
 落雪祝大家新年快乐！
