@@ -6,6 +6,21 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.8.3](https://github.com/ikunshare/ikun-music-mobile/compare/v1.8.2...v1.8.3) - 2025-11-01
+
+### 修复
+
+- QQ 音乐搜索
+- 某些设备播放崩溃
+
+### 优化
+
+- 优化 getPic 方法为异步函数，并修复返回值
+
+### 重构
+
+- 重构电池优化和通知权限相关方法，提取为独立工具类，并优化异步处理
+
 ## [1.8.2](https://github.com/ikunshare/ikun-music-mobile/compare/v1.7.0...v1.8.2) - 2025-10-28
 
 ### 新增

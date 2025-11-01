@@ -8,10 +8,19 @@ export default {
   page: 0,
   allPage: 1,
   successCode: 0,
+  randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+  },
+  getSearchId() {
+    const e = this.randomInt(1, 20)
+    const t = Number(e * Number('18014398509481984').toFixed())
+    const n = this.randomInt(0, 4194304) * 4294967296
+    const a = Date.now()
+    const r = Math.round(a * 1000) % (24 * 60 * 60 * 1000)
+    return String(t + n + r)
+  },
   musicSearch(str, page, limit, retryNum = 0) {
     if (retryNum > 5) return Promise.reject(new Error('搜索失败'))
-    // searchRequest = httpFetch(`https://c.y.qq.com/soso/fcgi-bin/client_search_cp?ct=24&qqmusic_ver=1298&new_json=1&remoteplace=sizer.yqq.song_next&searchid=49252838123499591&t=0&aggr=1&cr=1&catZhida=1&lossless=0&flag_qc=0&p=${page}&n=${limit}&w=${encodeURIComponent(str)}&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0`)
-    // const searchRequest = httpFetch(`https://shc.y.qq.com/soso/fcgi-bin/client_search_cp?ct=24&qqmusic_ver=1298&remoteplace=txt.yqq.top&aggr=1&cr=1&catZhida=1&lossless=0&flag_qc=0&p=${page}&n=${limit}&w=${encodeURIComponent(str)}&cv=4747474&ct=24&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0&uin=0&hostUin=0&loginUin=0`)
     const searchRequest = httpFetch('https://u.y.qq.com/cgi-bin/musicu.fcg', {
       method: 'post',
       headers: {
@@ -30,14 +39,15 @@ export default {
         },
         req: {
           module: 'music.search.SearchCgiService',
-          method: 'DoSearchForQQMusicLite',
+          method: 'DoSearchForQQMusicMobile',
           param: {
+            searchid: this.getSearchId(),
             query: str,
             search_type: 0,
             num_per_page: limit,
             page_num: page,
-            nqc_flag: 0,
-            grp: 1,
+            highlight: true,
+            grp: true,
           },
         },
       },
