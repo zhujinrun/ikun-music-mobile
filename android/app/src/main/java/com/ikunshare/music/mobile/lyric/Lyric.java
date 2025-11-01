@@ -106,6 +106,7 @@ public class Lyric extends LyricPlayer {
   private boolean isDisableAutoPause() {
     return !isRunPlayer || isSendLyricTextEvent;
   }
+
   private void handleScreenOff() {
     isScreenOff = true;
     if (isDisableAutoPause()) return;
@@ -139,6 +140,7 @@ public class Lyric extends LyricPlayer {
       lyricEvent.sendEvent(lyricEvent.LYRIC_Line_PLAY, params);
     }
   }
+
   private void handleGetCurrentLyric(int lineNum) {
     lastLine = lineNum;
     if (lineNum >= 0 && lineNum < lines.size()) {

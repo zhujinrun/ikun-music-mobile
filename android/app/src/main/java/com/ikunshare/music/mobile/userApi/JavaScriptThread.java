@@ -41,7 +41,8 @@ public class JavaScriptThread extends HandlerThread {
           }
         }
         switch (message.what) {
-          case HandlerWhat.INIT: break;
+          case HandlerWhat.INIT:
+            break;
           case HandlerWhat.ACTION: {
             Object[] data = (Object[]) message.obj;
             // Log.d("UserApi [handler]", "handler action: " + data[0]);

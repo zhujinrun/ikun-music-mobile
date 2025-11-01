@@ -67,7 +67,7 @@ public class RSA {
     return kp;
   }
 
-   public static String encryptRSAToString(String decryptedBase64, String publicKey, String padding) {
+  public static String encryptRSAToString(String decryptedBase64, String publicKey, String padding) {
     String encryptedBase64 = "";
     try {
       KeyFactory keyFac = KeyFactory.getInstance("RSA");

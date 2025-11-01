@@ -1,4 +1,4 @@
-package cn.toside.music.mobile.utils;
+package com.ikunshare.music.mobile.utils;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -16,7 +16,9 @@ import java.util.List;
 
 public class NotificationPermissionUtil {
 
-  /** 检查通知权限是否开启 */
+  /**
+   * 检查通知权限是否开启
+   */
   public static boolean isNotificationsEnabled(Context context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       // Android 8.0 及以上
@@ -49,7 +51,9 @@ public class NotificationPermissionUtil {
     }
   }
 
-  /** 安全地打开通知设置页 */
+  /**
+   * 安全地打开通知设置页
+   */
   public static boolean openNotificationPermissionActivity(Context context) {
     String packageName = context.getPackageName();
     Intent intent = new Intent();

@@ -44,7 +44,8 @@ public class JsHandler extends Handler {
   @Override
   public void handleMessage(Message msg) {
     switch (msg.what) {
-      case HandlerWhat.INIT_SUCCESS: break;
+      case HandlerWhat.INIT_SUCCESS:
+        break;
       case HandlerWhat.INIT_FAILED:
         sendInitFailedEvent((String) msg.obj);
         break;

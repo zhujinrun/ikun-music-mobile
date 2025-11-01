@@ -79,7 +79,8 @@ public final class LyricSwitchView extends TextSwitcher {
       case "right":
         translateAnimation = new TranslateAnimation(-100.0F, 0.0F, 0.0F, 0.0F);
         break;
-      default: return null;
+      default:
+        return null;
     }
 
     translateAnimation.setDuration(300L);
@@ -109,7 +110,8 @@ public final class LyricSwitchView extends TextSwitcher {
       case "right":
         translateAnimation = new TranslateAnimation(0.0F, 100.0F, 0.0F, 0.0F);
         break;
-      default: return null;
+      default:
+        return null;
     }
     translateAnimation.setDuration(300L);
     AlphaAnimation alphaAnimation = new AlphaAnimation(1.0F, 0.0F);
@@ -138,11 +140,11 @@ public final class LyricSwitchView extends TextSwitcher {
 
   public CharSequence getText() {
     View currentView = this.getCurrentView();
-    return currentView == null ? "" : ((TextView)currentView).getText();
+    return currentView == null ? "" : ((TextView) currentView).getText();
   }
 
   public TextPaint getPaint() {
-    TextView v = (TextView)this.getCurrentView();
+    TextView v = (TextView) this.getCurrentView();
     if (v == null) return null;
     return v.getPaint();
   }

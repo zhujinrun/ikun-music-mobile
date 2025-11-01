@@ -13,7 +13,10 @@ public class UtilsEvent {
   final String SCREEN_SIZE_CHANGED = "screen-size-changed";
 
   private final ReactApplicationContext reactContext;
-  UtilsEvent(ReactApplicationContext reactContext) { this.reactContext = reactContext; }
+
+  UtilsEvent(ReactApplicationContext reactContext) {
+    this.reactContext = reactContext;
+  }
 
   public void sendEvent(String eventName, @Nullable WritableMap params) {
     reactContext

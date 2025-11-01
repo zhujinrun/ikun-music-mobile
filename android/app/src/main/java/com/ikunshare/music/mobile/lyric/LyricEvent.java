@@ -11,7 +11,10 @@ public class LyricEvent {
   final String LYRIC_Line_PLAY = "lyric-line-play";
 
   private final ReactApplicationContext reactContext;
-  LyricEvent(ReactApplicationContext reactContext) { this.reactContext = reactContext; }
+
+  LyricEvent(ReactApplicationContext reactContext) {
+    this.reactContext = reactContext;
+  }
 
   public void sendEvent(String eventName, @Nullable WritableMap params) {
     // Log.d("Lyric", "senEvent: " + eventName);
