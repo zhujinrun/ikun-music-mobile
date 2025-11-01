@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
+<paths>
 
 
   <!-- Select one of the following based on your apk location -->
 
   <!-- cache dir is always available and requires no permissions, but space may be limited -->
-  <cache-path name="cache" path="/" />
+  <cache-path name="cache" path="/"/>
   <!-- <files-path name="name" path="/" />  -->
 
   <!-- External cache dir is maybe user-friendly for downloaded APKs, but you must be careful. -->

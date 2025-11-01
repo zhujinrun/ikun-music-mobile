@@ -5,9 +5,10 @@ import android.os.AsyncTask;
 import com.facebook.react.bridge.Promise;
 
 // https://github.com/midas-gufei/react-native-clear-app-cache/tree/master/android/src/main/java/com/learnta/clear
-public class CacheClearAsyncTask extends AsyncTask<Integer,Integer,String> {
+public class CacheClearAsyncTask extends AsyncTask<Integer, Integer, String> {
   public CacheModule cacheModule = null;
   public Promise promise;
+
   public CacheClearAsyncTask(CacheModule clearCacheModule, Promise promise) {
     super();
     this.cacheModule = clearCacheModule;

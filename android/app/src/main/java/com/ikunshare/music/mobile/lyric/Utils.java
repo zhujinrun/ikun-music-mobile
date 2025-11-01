@@ -7,11 +7,13 @@ public class Utils {
   public static Object setTimeout(Runnable runnable, long delay) {
     return new TimeoutEvent(runnable, delay);
   }
+
   public static void clearTimeout(Object timeoutEvent) {
     if (timeoutEvent instanceof TimeoutEvent) {
       ((TimeoutEvent) timeoutEvent).cancelTimeout();
     }
   }
+
   private static class TimeoutEvent {
     private static final Handler handler = new Handler();
     private volatile Runnable runnable;

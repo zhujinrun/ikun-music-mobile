@@ -198,8 +198,9 @@ public class UtilsModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   Gets the device's WiFi interface IP address
-   @return device's WiFi IP if connected to WiFi, else '0.0.0.0'
+   * Gets the device's WiFi interface IP address
+   *
+   * @return device's WiFi IP if connected to WiFi, else '0.0.0.0'
    */
   @ReactMethod
   public void getWIFIIPV4Address(final Promise promise) throws Exception {
@@ -213,7 +214,7 @@ public class UtilsModule extends ReactContextBaseJavaModule {
           @SuppressLint("DefaultLocale") String stringip = String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
             (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
           promise.resolve(stringip);
-        }catch (Exception e) {
+        } catch (Exception e) {
           promise.resolve(null);
         }
       }
@@ -231,6 +232,7 @@ public class UtilsModule extends ReactContextBaseJavaModule {
       promise.resolve(capitalize(manufacturer) + " " + model);
     }
   }
+
   private String capitalize(String s) {
     if (s == null || s.isEmpty()) {
       return "";
@@ -265,7 +267,7 @@ public class UtilsModule extends ReactContextBaseJavaModule {
   public void shareText(String shareTitle, String title, String text) {
     Intent shareIntent = new Intent(Intent.ACTION_SEND);
     shareIntent.setType("text/plain");
-    shareIntent.putExtra(Intent.EXTRA_TEXT,text);
+    shareIntent.putExtra(Intent.EXTRA_TEXT, text);
     shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
     Objects.requireNonNull(reactContext.getCurrentActivity()).startActivity(Intent.createChooser(shareIntent, shareTitle));
   }

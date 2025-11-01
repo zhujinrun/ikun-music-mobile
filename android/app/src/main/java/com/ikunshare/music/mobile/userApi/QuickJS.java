@@ -12,6 +12,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 
 import com.whl.quickjs.android.QuickJSLoader;
 import com.whl.quickjs.wrapper.QuickJSContext;
+
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -173,7 +174,8 @@ public class QuickJS {
         Log.e("UserApi", "load script error: " + e.getMessage());
         try {
           callJS("__run_error__");
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         if (inited) return "";
         inited = true;
         return e.getMessage();
@@ -186,6 +188,7 @@ public class QuickJS {
     Object[] params = new Object[]{this.key, action};
     return callJS(params);
   }
+
   public Object callJS(String action, Object... args) {
     Object[] params = new Object[args.length + 2];
     params[0] = this.key;
@@ -193,6 +196,7 @@ public class QuickJS {
     System.arraycopy(args, 0, params, 2, args.length);
     return callJS(params);
   }
+
   public Object callJS(Object[] params) {
     try {
       return this.jsContext.getGlobalObject().getJSFunction("__lx_native__").call(params);
@@ -213,7 +217,7 @@ public class QuickJS {
     }
   }
 
-  public void destroy () {
+  public void destroy() {
     this.jsContext.destroy();
     this.jsContext = null;
   }

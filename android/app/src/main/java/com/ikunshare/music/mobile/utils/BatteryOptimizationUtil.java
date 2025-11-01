@@ -28,6 +28,7 @@ public class BatteryOptimizationUtil {
 
   /**
    * 请求忽略电池优化
+   *
    * @return true: 已忽略或成功打开系统页面；false: 系统不支持或调用失败
    */
   public static boolean requestIgnoreBatteryOptimization(Context context, String packageName) {

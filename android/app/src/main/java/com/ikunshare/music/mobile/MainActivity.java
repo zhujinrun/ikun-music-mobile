@@ -8,6 +8,4 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate;
 public class MainActivity extends NavigationActivity {
 
 
-
-
 }

@@ -88,7 +88,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
         public void onOrientationChanged(int orientation) {
           Display display = windowManager.getDefaultDisplay();
           int rotation = display.getRotation();
-          if(rotation != mLastRotation){
+          if (rotation != mLastRotation) {
             //rotation changed
             // if (rotation == Surface.ROTATION_90){} // check rotations here
             // if (rotation == Surface.ROTATION_270){} //
@@ -104,6 +104,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
       orientationEventListener.enable();
     }
   }
+
   private void removeOrientationEvent() {
     if (orientationEventListener == null) return;
     orientationEventListener.disable();
@@ -125,6 +126,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
 
   /**
    * update screen width and height
+   *
    * @return has updated
    */
   private boolean updateWH() {
@@ -147,7 +149,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
 
   private void fixViewPosition() {
     int maxX = maxWidth - layoutParams.width;
-    int x = (int)(maxWidth * prevViewPercentageX);
+    int x = (int) (maxWidth * prevViewPercentageX);
     if (x < 0) x = 0;
     else if (x > maxX) x = maxX;
     if (layoutParams.x != x) layoutParams.x = x;
@@ -155,7 +157,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
     setLayoutParamsHeight();
 
     int maxY = maxHeight - layoutParams.height;
-    int y = (int)(maxHeight * prevViewPercentageY);
+    int y = (int) (maxHeight * prevViewPercentageY);
     if (y < 0) y = 0;
     else if (y > maxY) y = maxY;
     if (layoutParams.y != y) layoutParams.y = y;
@@ -164,7 +166,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
   private void updateViewPosition() {
     if (!updateWH()) return;
 
-    int width = (int)(maxWidth * widthPercentage);
+    int width = (int) (maxWidth * widthPercentage);
     if (layoutParams.width != width) {
       layoutParams.width = width;
       if (textView != null) textView.setWidth(width);
@@ -185,7 +187,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
     lyricEvent.sendEvent(lyricEvent.SET_VIEW_POSITION, params);
   }
 
-//  public void permission(){
+  //  public void permission(){
 //    if (Build.VERSION.SDK_INT >= 23) {
 //      if(!Settings.canDrawOverlays(this)) {
 //        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
@@ -223,6 +225,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
     handleShowLyric();
     listenOrientationEvent();
   }
+
   public void showLyricView() {
     try {
       handleShowLyric();
@@ -232,6 +235,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
     }
     listenOrientationEvent();
   }
+
   public static int parseColor(String input) {
     if (input.startsWith("#")) return Color.parseColor(input);
     Pattern c = Pattern.compile("rgba? *\\( *(\\d+), *(\\d+), *(\\d+)(?:, *([\\d.]+))? *\\)");
@@ -293,6 +297,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
       textView.setMaxLines(maxLineNum);
     }
   }
+
   private void handleShowLyric() {
     if (windowManager == null) {
       windowManager = (WindowManager) reactContext.getSystemService(Context.WINDOW_SERVICE);
@@ -352,13 +357,13 @@ public class LyricView extends Activity implements View.OnTouchListener {
     // layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
     // layoutParams.width= DisplayUtil.dp2px(mContext,55);
     // layoutParams.height= DisplayUtil.dp2px(mContext,55);
-    layoutParams.width = (int)(maxWidth * widthPercentage);
+    layoutParams.width = (int) (maxWidth * widthPercentage);
     textView.setWidth(layoutParams.width);
     setLayoutParamsHeight();
 
     //显示位置与指定位置的相对位置差
-    layoutParams.x = (int)(maxWidth * prevViewPercentageX);
-    layoutParams.y = (int)(maxHeight * prevViewPercentageY);
+    layoutParams.x = (int) (maxWidth * prevViewPercentageX);
+    layoutParams.y = (int) (maxHeight * prevViewPercentageY);
 
     fixViewPosition();
 
@@ -405,7 +410,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
   public void setWidth(int width) {
     if (textView == null) return;
     widthPercentage = width / 100f;
-    layoutParams.width = (int)(maxWidth * widthPercentage);
+    layoutParams.width = (int) (maxWidth * widthPercentage);
     textView.setWidth(layoutParams.width);
 
     int maxX = maxWidth - layoutParams.width;
@@ -422,7 +427,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
     int maxX = maxWidth - layoutParams.width;
     int maxY = maxHeight - layoutParams.height;
 
-    switch (event.getAction()){
+    switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
         // 获取按下时的X，Y坐标
         lastX = event.getRawX();
@@ -434,17 +439,17 @@ public class LyricView extends Activity implements View.OnTouchListener {
         // 获取移动时的X，Y坐标
         nowX = event.getRawX();
         nowY = event.getRawY();
-        if (preY == 0){
+        if (preY == 0) {
           preY = nowY;
         }
         // 计算XY坐标偏移量
         tranX = nowX - lastX;
         tranY = nowY - lastY;
 
-        int x = layoutParams.x + (int)tranX;
+        int x = layoutParams.x + (int) tranX;
         if (x < 0) x = 0;
         else if (x > maxX) x = maxX;
-        int y = layoutParams.y + (int)tranY;
+        int y = layoutParams.y + (int) tranY;
         if (y < 0) y = 0;
         else if (y > maxY) y = maxY;
 
@@ -476,8 +481,8 @@ public class LyricView extends Activity implements View.OnTouchListener {
         //根据移动的位置来判断
         // dy = 0;
         tranY = 0;
-        float percentageX = (float)layoutParams.x / (float) maxWidth * 100f;
-        float percentageY = (float)layoutParams.y / (float) maxHeight * 100f;
+        float percentageX = (float) layoutParams.x / (float) maxWidth * 100f;
+        float percentageY = (float) layoutParams.y / (float) maxHeight * 100f;
         if (percentageX != prevViewPercentageX || percentageY != prevViewPercentageY) {
           prevViewPercentageX = percentageX / 100f;
           prevViewPercentageY = percentageY / 100f;
