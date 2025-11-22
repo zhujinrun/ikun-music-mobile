@@ -6,6 +6,11 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.8.4](https://github.com/ikunshare/ikun-music-mobile/compare/v1.8.3...v1.8.4) - 2025-11-22
+
+### 修复
+
+- 一个小问题
 ## [1.8.3](https://github.com/ikunshare/ikun-music-mobile/compare/v1.8.2...v1.8.3) - 2025-11-01
 
 ### 修复
