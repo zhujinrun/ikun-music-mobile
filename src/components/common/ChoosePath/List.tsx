@@ -17,13 +17,8 @@ import { type PathItem } from './components/ListItem'
 const parentDirInfo = new Map<string, string>()
 const caches = new Map<string, PathItem[]>()
 
-const handleReadDir = async (
-  path: string,
-  dirOnly: boolean,
-  filter?: string[],
-  isRefresh = false
-) => {
-  let filterRxp = filter ? new RegExp(`\\.(${filter.join('|')})$`, 'i') : null
+const handleReadDir = async(path: string, dirOnly: boolean, filter?: string[], isRefresh = false) => {
+  let filterRxp = filter?.length ? new RegExp(`\\.(${filter.join('|')})$`, 'i') : null
   const cacheKey = `${path}_${dirOnly ? 'true' : 'false'}_${filter ? filter.toString() : 'null'}`
   if (!isRefresh && caches.has(cacheKey)) return caches.get(cacheKey)!
   return readDir(path).then((paths) => {

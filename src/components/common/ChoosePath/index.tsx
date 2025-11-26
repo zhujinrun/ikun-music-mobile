@@ -55,50 +55,45 @@ export default forwardRef<ChoosePathType, ChoosePathProps>(
       })
     }
 
-    useImperativeHandle(ref, () => ({
-      show(options) {
-        if (!settingState.setting['common.useSystemFileSelector'] || options.dirOnly) {
-          // if (options.isPersist) {
-          void handleOpenExternalStorage(options)
-          // } else {
-          //   void selectManagedFolder().then((dir) => {
-          //     if (!dir || isUnmounted.current) return
-          //     listRef.current?.show(options.title, dir.path, options.dirOnly, options.filter)
-          //   })
-          // }
-        } else {
-          void selectFile({
-            extTypes: options.filter,
-            toPath: TEMP_FILE_PATH,
+  useImperativeHandle(ref, () => ({
+    show(options) {
+      if (!settingState.setting['common.useSystemFileSelector'] || options.dirOnly) {
+        // if (options.isPersist) {
+        void handleOpenExternalStorage(options)
+        // } else {
+        //   void selectManagedFolder().then((dir) => {
+        //     if (!dir || isUnmounted.current) return
+        //     listRef.current?.show(options.title, dir.path, options.dirOnly, options.filter)
+        //   })
+        // }
+      } else {
+        void selectFile({
+          extTypes: options.filter,
+          toPath: TEMP_FILE_PATH,
+        }).then((file) => {
+          // console.log(file)
+          if (!file || isUnmounted.current) return
+          if (options.filter && !options.filter.some(ext => file.data.toLowerCase().endsWith('.' + ext))) {
+            toast(t('storage_file_no_match'), 'long')
+            void unlink(file.data)
+            return
+          }
+          onConfirm(file.data)
+        }).catch(err => {
+          if (isUnmounted.current) return
+          log.warn('open document failed: ' + err.message)
+          void confirmDialog({
+            message: t('storage_file_no_select_file_failed_tip'),
+            bgClose: false,
+          }).then((confirm) => {
+            if (!confirm) {
+              toast(t('disagree_tip'), 'long')
+              return
+            }
+            updateSetting({ 'common.useSystemFileSelector': false })
+            void handleOpenExternalStorage(options)
           })
-            .then((file) => {
-              // console.log(file)
-              if (!file || isUnmounted.current) return
-              if (options.filter && !options.filter.some((ext) => file.data.endsWith('.' + ext))) {
-                toast(t('storage_file_no_match'), 'long')
-                void unlink(file.data)
-                return
-              }
-              onConfirm(file.data)
-            })
-            .catch((err) => {
-              if (isUnmounted.current) return
-              log.warn('open document failed: ' + err.message)
-              void confirmDialog({
-                message: t('storage_file_no_select_file_failed_tip'),
-                bgClose: false,
-              }).then((confirm) => {
-                if (!confirm) {
-                  toast(t('disagree_tip'), 'long')
-                  return
-                }
-                updateSetting({ 'common.useSystemFileSelector': false })
-                void handleOpenExternalStorage(options)
-              })
-            })
-        }
-      },
-    }))
+        })}}}))
 
     const handleTipsCancel = () => {
       toast(t('disagree_tip'), 'long')
