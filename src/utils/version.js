@@ -7,7 +7,7 @@ import { APP_PROVIDER_NAME } from '@/config/constant'
 const abis = ['arm64-v8a', 'armeabi-v7a', 'x86_64', 'x86', 'universal']
 
 const address = [
-  [`https://raw.gitmirror.com/${author.name}/${name}/master/publish/version.json`, 'direct'],
+  [`https://raw.gitmirror.com/${author.name}/${name}/main/publish/version.json`, 'direct'],
   [`https://cdn.jsdelivr.net/gh/${author.name}/${name}/publish/version.json`, 'direct'],
   [`https://fastly.jsdelivr.net/gh/${author.name}/${name}/publish/version.json`, 'direct'],
   [`https://gcore.jsdelivr.net/gh/${author.name}/${name}/publish/version.json`, 'direct'],
@@ -80,7 +80,7 @@ let apkSavePath
 export const downloadNewVersion = async (version, onDownload = noop) => {
   const abi = await getTargetAbi()
   const url = `https://gh-proxy.org/https://github.com/${author.name}/${name}/releases/download/v${version}/${name}-v${version}-${abi}.apk`
-  let savePath = temporaryDirectoryPath + '/lx-music-mobile.apk'
+  let savePath = temporaryDirectoryPath + '/ikun-music-mobile.apk'
 
   if (downloadJobId) stopDownload(downloadJobId)
 

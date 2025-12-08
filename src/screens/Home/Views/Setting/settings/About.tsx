@@ -17,7 +17,7 @@ export default memo(() => {
   const theme = useTheme()
   const t = useI18n()
   const openHomePage = () => {
-    void openUrl('https://github.com/ikunshare/ikun-music-mobile#readme')
+    void openUrl('https://github.com/zhujinrun/ikun-music-mobile#readme')
   }
   const goToQQGroup = () => {
     openUrl(qqGroupUrl).catch(() => {
@@ -36,7 +36,7 @@ export default memo(() => {
       <View style={styles.part}>
         <Text style={styles.text}>本软件完全免费，代码已开源。开源地址：</Text>
         <TouchableOpacity onPress={openHomePage}>
-          <Text style={textLinkStyle}>https://github.com/ikunshare/ikun-music-mobile</Text>
+          <Text style={textLinkStyle}>https://github.com/zhujinrun/ikun-music-mobile</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.part}>
