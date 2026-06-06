@@ -6,8 +6,7 @@ import Input, { type InputType } from '@/components/common/Input'
 import { createStyle, toast } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import { useI18n } from '@/lang'
-import { httpFetch } from '@/utils/request'
-import { handleImportScript } from './action'
+import { fetchOnlineScript, handleImportScript } from './action'
 
 interface UrlInputType {
   setText: (text: string) => void
@@ -90,20 +89,14 @@ export default forwardRef<ScriptImportOnlineType, {}>((props, ref) => {
     setBtn({ disabled: true, text: t('user_api_btn_import_online_input_loading') })
     let script: string
     try {
-      script = (await httpFetch(url).promise.then((resp) => resp.body)) as string
+      script = await fetchOnlineScript(url)
     } catch (err: any) {
       toast(t('user_api_import_failed_tip', { message: err.message }), 'long')
       return
     } finally {
       setBtn({ disabled: false, text: t('user_api_btn_import_online_input_confirm') })
     }
-    if (script.length > 9_000_000) {
-      toast(t('user_api_import_failed_tip', { message: 'Too large script' }), 'long')
-      return
-    }
-    void handleImportScript(script)
-
-    alertRef.current?.setVisible(false)
+    if (await handleImportScript(script)) alertRef.current?.setVisible(false)
   }
 
   return visible ? (

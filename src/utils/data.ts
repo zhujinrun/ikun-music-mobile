@@ -572,19 +572,50 @@ const matchInfo = (scriptInfo: string) => {
 
   return infos as Record<keyof typeof INFO_NAMES, string>
 }
-export const addUserApi = async (script: string): Promise<LX.UserApi.UserApiInfo> => {
+
+const createUserApiInfo = (
+  script: string,
+  options: {
+    id?: string
+    allowShowUpdateAlert?: boolean
+  } = {}
+) => {
   const result = /^\/\*[\S|\s]+?\*\//.exec(script)
   if (!result) throw new Error(global.i18n.t('user_api_add_failed_tip'))
 
-  let scriptInfo = matchInfo(result[0])
+  const scriptInfo = matchInfo(result[0])
 
   scriptInfo.name ||= `user_api_${new Date().toLocaleString()}`
-  const apiInfo: LX.UserApi.UserApiInfo = {
-    id: `user_api_${Math.random().toString().substring(2, 5)}_${Date.now()}`,
+  return {
+    id: options.id ?? `user_api_${Math.random().toString().substring(2, 5)}_${Date.now()}`,
     ...scriptInfo,
-    allowShowUpdateAlert: true,
+    allowShowUpdateAlert: options.allowShowUpdateAlert ?? true,
   }
+}
+
+export const addUserApi = async (script: string): Promise<LX.UserApi.UserApiInfo> => {
+  const apiInfo = createUserApiInfo(script)
   userApis.push(apiInfo)
+  await saveDataMultiple([
+    [userApiPrefix, userApis],
+    [`${userApiPrefix}${apiInfo.id}`, script],
+  ])
+  return apiInfo
+}
+export const upsertUserApi = async (
+  id: string,
+  script: string
+): Promise<LX.UserApi.UserApiInfo> => {
+  const targetIndex = userApis.findIndex((api) => api.id == id)
+  const target = targetIndex > -1 ? userApis[targetIndex] : null
+  const apiInfo = createUserApiInfo(script, {
+    id,
+    allowShowUpdateAlert: target?.allowShowUpdateAlert,
+  })
+
+  if (targetIndex > -1) userApis.splice(targetIndex, 1, apiInfo)
+  else userApis.push(apiInfo)
+
   await saveDataMultiple([
     [userApiPrefix, userApis],
     [`${userApiPrefix}${apiInfo.id}`, script],

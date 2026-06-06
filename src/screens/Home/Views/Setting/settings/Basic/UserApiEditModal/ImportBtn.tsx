@@ -7,6 +7,7 @@ import Text from '@/components/common/Text'
 import { useI18n } from '@/lang'
 import ScriptImportExport, { type ScriptImportExportType } from './ScriptImportExport'
 import ScriptImportOnline, { type ScriptImportOnlineType } from './ScriptImportOnline'
+import ScriptImportPreset, { type ScriptImportPresetType } from './ScriptImportPreset'
 import { state } from '@/store/userApi'
 import { tipDialog } from '@/utils/tools'
 
@@ -21,9 +22,11 @@ export default ({ btnStyle }: BtnProps) => {
   const theme = useTheme()
   const scriptImportExportRef = useRef<ScriptImportExportType>(null)
   const scriptImportOnlineRef = useRef<ScriptImportOnlineType>(null)
+  const scriptImportPresetRef = useRef<ScriptImportPresetType>(null)
 
   const importTypes = useMemo(() => {
     return [
+      { action: 'preset', label: t('user_api_btn_import_preset') },
       { action: 'local', label: t('user_api_btn_import_local') },
       { action: 'online', label: t('user_api_btn_import_online') },
     ] as const
@@ -42,8 +45,10 @@ export default ({ btnStyle }: BtnProps) => {
 
     if (action == 'local') {
       scriptImportExportRef.current?.import()
-    } else {
+    } else if (action == 'online') {
       scriptImportOnlineRef.current?.show()
+    } else {
+      scriptImportPresetRef.current?.show()
     }
   }
 
@@ -54,6 +59,7 @@ export default ({ btnStyle }: BtnProps) => {
       </Text>
       <ScriptImportExport ref={scriptImportExportRef} />
       <ScriptImportOnline ref={scriptImportOnlineRef} />
+      <ScriptImportPreset ref={scriptImportPresetRef} />
     </DorpDownMenu>
   )
 }
