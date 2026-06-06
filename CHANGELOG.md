@@ -6,7 +6,19 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [1.9.0](https://github.com/ikunshare/ikun-music-mobile/compare/v1.8.9...v1.9.0) - 2026-06-02
+## [1.9.1](https://github.com/zhujinrun/ikun-music-mobile/compare/v1.9.0...v1.9.1) - 2026-06-06
+
+### 新增
+
+- 新增预置在线音源导入入口，可从自定义源管理中直接选择常用音源导入
+
+### 优化
+
+- 预置在线音源导入支持多镜像地址自动重试，降低单个 CDN 不可用导致导入失败的概率
+- 预置在线音源使用固定 ID，重复导入同一预置源时将更新原有源而不是新增重复项
+- 在线导入脚本校验失败时保留导入弹窗，方便重新导入
+
+## [1.9.0](https://github.com/zhujinrun/ikun-music-mobile/compare/v1.8.9...v1.9.0) - 2026-06-02
 
 ### 新增
 
